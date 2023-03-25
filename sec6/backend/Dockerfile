@@ -10,8 +10,7 @@ COPY . .
 
 EXPOSE 80
 
-ENV MONGO_USERNAME=sohta
-
-ENV MONGO_PASSOWD=secret
+ENV MONGODB_USERNAME=root
+ENV MONGODB_PASSWORD=secret
 
 CMD ["npm", "start"]
