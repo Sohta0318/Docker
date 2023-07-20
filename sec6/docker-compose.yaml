@@ -1,20 +1,49 @@
 version: '3.8'
 services:
-  mongodb:
-    image: 'mongo'
+  mongodb: #name of container, you can name whatever you want
+    image: 'mongo' #could be custom name, path
     volumes:
-      -data:/data/db
+      - data:/data/db #name volume
+    # container_name: mongodb  you can name container
     # environment:
-    #    MONGO_INITDB_ROOT_USERNAME: max
-    #   # - MONGO_INITDB_ROOT_USERNAME=max
-    #    MONGO_INITDB_ROOT_PASSWORD: secret
+      # MONGO_INITDB_ROOT_USERNAME: max <-- don't need - in front 
+      # - MONGO_INITDB_ROOT_USERNAME=max <-- need - in front 
+      # - MONGO_INITDB_ROOT_PASSWORD=secret
     env_file:
-      - ./env/mongo.env
-    # networks:
-    #   - goals-net
+      - ./env/mongo.env # env_file path
+    #* doen't need network, it automatically create network and put them in same network that all container that inside compose file
+    # networks: 
+    #   - networkName 
   backend:
-    # build: ./backend
+    build: ./backend  #Dockerfile path. it's for image that not build yet
+    # build:
+    #   context: ./backend
+    #   dockerfile: Dockerfile
+      # args:
+      #   - name=value
+    ports:
+      - '80:80' # host port:container port
+    volumes:
+      - logs:/app/logs
+      - ./backend:/app # not absolute path, it relative path to backend
+      - /app/node_modules
+    env_file:
+      - ./env/backend.env
+    depends_on:
+      - mongodb # name of service, this is if container need other container run first.
   frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/src:/app/src
+      # for -it mode
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
 
+#* need to specify name volume not bind mount or anynimous volume, if other container use same name of volume it will be shared(they use same volume)
 volumes:
   data:
+  logs:
